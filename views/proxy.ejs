@@ -8,12 +8,16 @@
 </head>
 <body>
     <div class="container">
-        <div class="form-group">
-        <label for="proxy-dest">Destination</label>
-        <input type="text"
-            class="form-control" name="proxy-dest" id="proxy-dest" aria-describedby="helpId" placeholder="URL">
-        <small id="helpId" class="form-text text-muted">Write the destination URL (i.e., google.com)</small>
-        </div>
+        <h1>Proxy</h1>
+        <form action="/proxy" method="POST">
+            <div class="form-group">
+                <label for="dhost">Destination</label>
+                <input type="text"
+                    class="form-control" name="dhost" id="dhost" aria-describedby="helpId" placeholder="URL">
+                <small id="helpId" class="form-text text-muted">Write the destination URL (i.e., google.com)</small>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
     </div>
 </body>
 </html>
