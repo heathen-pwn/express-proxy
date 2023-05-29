@@ -9,12 +9,12 @@
 <body>
     <div class="container">
         <h1>Proxy</h1>
-        <form action="/proxy" method="POST">
+        <form action="/proxy" method="GET">
             <div class="form-group">
                 <label for="dhost">Destination</label>
                 <input type="text"
-                    class="form-control" name="dhost" id="dhost" aria-describedby="helpId" placeholder="URL">
-                <small id="helpId" class="form-text text-muted">Write the destination URL (i.e., google.com)</small>
+                    class="form-control" name="dhost" id="dhost" aria-describedby="helpId" placeholder="https://google.com/" autofocus>
+                <small id="helpId" class="form-text text-muted">Write the destination URL (i.e., https:google.com, http://icanhazip.com)</small>
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>
         </form>
