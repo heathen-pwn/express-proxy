@@ -5,7 +5,7 @@ const cheerio = require('cheerio');
 class Proxy {
   constructor(destination, response) {
     try {
-      this.destination = new URL(destination); // url object or url string
+      this.destination = new URL(destination);
     }
     catch (e) {
       if (e.code === 'ERR_INVALID_URL') {
@@ -25,12 +25,7 @@ class Proxy {
   }
 
   get() {
-    if (this.destination.protocol === 'http:') {
-      this.getHttp();
-    } else {
-      this.destination.protocol = 'https:';
-      this.getHttps();
-    }
+    this.destination.protocol === 'http:' ? this.getHttp() : this.getHttps();
   }
 
   getHttps() {
