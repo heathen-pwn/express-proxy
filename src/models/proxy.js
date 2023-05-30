@@ -88,7 +88,6 @@ class Proxy {
     $('a').each(handleAnchor);
     $('script').each(handleScript);
     $('img').each(handleImage);
-    $('link').each(handleLink);
 
     function handleAnchor(number, element) {
       const CurrentElement = $(element);
@@ -117,7 +116,7 @@ class Proxy {
       CurrentElement.attr("src", newSrc);
     }
 
-    function handleLink(number, element) {
+    const handleLink = (number, element) => {
       const CurrentElement = $(element);
       const proxyName = "http://localhost/proxy?dhost=";
       // const newRel = `${proxyName}${CurrentElement.attr('rel')}`;
@@ -127,6 +126,8 @@ class Proxy {
         const newHref = `${proxyName}${this.destination.host}${extractedUrl}`;
         CurrentElement.attr("href", newHref);
       }
+
+      $('link').each(handleLink());
 
       // CurrentElement.attr("rel", newRel);
     }
