@@ -1,6 +1,7 @@
 const http = require('node:http');
 const https = require('node:https');
 const cheerio = require('cheerio');
+const { execArgv } = require('node:process');
 
 class Proxy {
   constructor(destination, response) {
@@ -14,6 +15,7 @@ class Proxy {
           
           try {
             this.destination = new URL(`${proto}${destination}`);
+            console.log(this.destination);
           }
           catch (e) {
             console.error("Could not determine provided URL on Proxy construction:" + e.message);
@@ -40,7 +42,7 @@ class Proxy {
       res.on('end', () => {
         try {
           const parsedData = this.parse(rawData);
-          console.log(`Sending... ${parsedData.slice(0, 150)}... to GET request`);
+          console.log(`Sending... ${parsedData.slice(0, 150)}... to HTTPS GET request`);
           this.response.send(parsedData);
 
         }
@@ -54,7 +56,7 @@ class Proxy {
   getHttp() {
     http.get(this.destination, (res) => {
       res.setEncoding('utf-8');
-      let rawData = '';
+      const rawData = '';
 
       res.on('data', (chunk) => {
         rawData += chunk;
@@ -63,7 +65,7 @@ class Proxy {
       res.on('end', () => {
         try {
           const parsedData = this.parse(rawData);
-          console.log(`Sending... ${parsedData.slice(0, 150)}... to GET request`);
+          console.log(`Sending... ${parsedData.slice(0, 150)}... to HTTP GET request`);
           this.response.send(parsedData);
 
         }
@@ -83,7 +85,6 @@ class Proxy {
   parse(raw) {
     const $ = cheerio.load(raw, null, false);
 
-
     $('a').each(handleAnchor);
     $('script').each(handleScript);
     $('img').each(handleImage);
@@ -91,34 +92,43 @@ class Proxy {
 
     function handleAnchor(number, element) {
       const CurrentElement = $(element);
-      // console.log(CurrentElement);
-      const ProxyName = "http://localhost/proxy?dhost=";
-      let newHref = `${ProxyName}${CurrentElement.attr('href')}`;
+      const proxyName = "http://localhost/proxy?dhost=";
+      const extractedUrl = CurrentElement.attr('href');
+      const newHref = `${proxyName}${extractedUrl}`;
+      
       CurrentElement.attr("href", newHref);
     }
 
     function handleScript(number, element) {
       const CurrentElement = $(element);
-      // console.log(CurrentElement);
-      const ProxyName = "http://localhost/proxy?dhost=";
-      let newSrc = `${ProxyName}${CurrentElement.attr('src')}`;
+      const proxyName = "http://localhost/proxy?dhost=";
+      const extractedUrl = CurrentElement.attr('src');
+      const newSrc = `${proxyName}${extractedUrl}`;
+      
       CurrentElement.attr("src", newSrc);
     }
 
     function handleImage(number, element) {
       const CurrentElement = $(element);
-      // console.log(CurrentElement);
-      const ProxyName = "http://localhost/proxy?dhost=";
-      let newSrc = `${ProxyName}${CurrentElement.attr('src')}`;
+      const proxyName = "http://localhost/proxy?dhost=";
+      const extractedUrl = CurrentElement.attr('src');
+      const newSrc = `${proxyName}${extractedUrl}`;
+      
       CurrentElement.attr("src", newSrc);
     }
 
     function handleLink(number, element) {
       const CurrentElement = $(element);
-      // console.log(CurrentElement);
-      const ProxyName = "http://localhost/proxy?dhost=";
-      let newRel = `${ProxyName}${CurrentElement.attr('rel')}`;
-      CurrentElement.attr("rel", newRel);
+      const proxyName = "http://localhost/proxy?dhost=";
+      // const newRel = `${proxyName}${CurrentElement.attr('rel')}`;
+      // const newHref = `${proxyName}${extractedUrl}`;
+      if(CurrentElement.attr('rel') === 'stylesheet') { 
+        const extractedUrl = CurrentElement.attr('href');
+        const newHref = `${proxyName}${this.destination.host}${extractedUrl}`;
+        CurrentElement.attr("href", newHref);
+      }
+
+      // CurrentElement.attr("rel", newRel);
     }
 
     // $('a').attr('href', 'http://localhost/proxy?dhost='+this.attr('href'));
@@ -128,10 +138,17 @@ class Proxy {
 
     return $.html();
   }
-
+  static isUrlRelative(url) { // This is only applicable in this.parse
+    try {
+      const Url = new URL(url);
+      return true;
+    }
+    catch(e) {
+      return false;
+    }
+  }
 }
 
-new Proxy('localhost.com', {});
 module.exports = {
   Proxy: Proxy
 }
