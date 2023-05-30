@@ -1,67 +1,83 @@
 const http = require('node:http');
 const https = require('node:https');
 const cheerio = require('cheerio');
-const { cursorTo } = require('node:readline');
+
 class Proxy {
-    constructor(destination, response) {
-        this.destination = destination; // url object or url string
-        this.response = response;
+  constructor(destination, response) {
+    try {
+      this.destination = new URL(destination); // url object or url string
     }
-
-    get() { 
-        if(this.destination.protocol === 'http:') {
-          this.getHttp();
-        } else {
-          this.destination.protocol = 'https:';
-          this.getHttps();
-        }
-    }
-
-    getHttps() {
-      https.get(this.destination, (res) => {
-        res.setEncoding('utf-8');
-        let rawData = '';
-  
-        res.on('data', (chunk) => {
-          rawData += chunk;
-        })
-  
-        res.on('end', () => {
+    catch (e) {
+      if (e.code === 'ERR_INVALID_URL') {
+        if (!destination.startsWith("http:") || !destination.startsWith("https:")) {
+          const proto = "http:"; // Can add protocol determinator here later
+          
           try {
-            const parsedData = this.parse(rawData);
-            console.log(`Sending... ${parsedData.slice(0, 150)}... to GET request`);
-            this.response.send(parsedData);
-
+            this.destination = new URL(`${proto}${destination}`);
           }
           catch (e) {
-            console.error(e);
+            console.error("Could not determine provided URL on Proxy construction:" + e.message);
           }
-        })
-  
+        }
+      }
+    }
+    this.response = response;
+  }
+
+  get() {
+    if (this.destination.protocol === 'http:') {
+      this.getHttp();
+    } else {
+      this.destination.protocol = 'https:';
+      this.getHttps();
+    }
+  }
+
+  getHttps() {
+    https.get(this.destination, (res) => {
+      res.setEncoding('utf-8');
+      let rawData = '';
+
+      res.on('data', (chunk) => {
+        rawData += chunk;
       })
+
+      res.on('end', () => {
+        try {
+          const parsedData = this.parse(rawData);
+          console.log(`Sending... ${parsedData.slice(0, 150)}... to GET request`);
+          this.response.send(parsedData);
+
+        }
+        catch (e) {
+          console.error(e);
+        }
+      })
+
+    })
   }
   getHttp() {
-      http.get(this.destination, (res) => {
-          res.setEncoding('utf-8');
-          let rawData = '';
-    
-          res.on('data', (chunk) => {
-            rawData += chunk;
-          })
-    
-          res.on('end', () => {
-            try {
-              const parsedData = this.parse(rawData);
-              console.log(`Sending... ${parsedData.slice(0, 150)}... to GET request`);
-              this.response.send(parsedData);
+    http.get(this.destination, (res) => {
+      res.setEncoding('utf-8');
+      let rawData = '';
 
-            }
-            catch (e) {
-              console.error(e);
-            }
-          })
-    
-        })
+      res.on('data', (chunk) => {
+        rawData += chunk;
+      })
+
+      res.on('end', () => {
+        try {
+          const parsedData = this.parse(rawData);
+          console.log(`Sending... ${parsedData.slice(0, 150)}... to GET request`);
+          this.response.send(parsedData);
+
+        }
+        catch (e) {
+          console.error(e);
+        }
+      })
+
+    })
   }
   /*
     -- Need to add a handler for such events when the href/src/rel is relative
@@ -116,10 +132,11 @@ class Proxy {
     // $('link').attr('href', 'http://localhost/proxy?dhost='+$('link').attr('href'));
 
     return $.html();
-}
+  }
 
 }
 
+new Proxy('localhost.com', {});
 module.exports = {
   Proxy: Proxy
 }

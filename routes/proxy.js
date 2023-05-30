@@ -15,7 +15,7 @@ router.post('/', (req, res) => {
 
 router.get('/proxy', (req, res) => {
   console.log("dhost:", req.query.dhost);
-  const proxy = new ProxyAPI.Proxy(new URL(req.query.dhost), res);
+  const proxy = new ProxyAPI.Proxy(req.query.dhost, res);
   proxy.get();
 })
 
