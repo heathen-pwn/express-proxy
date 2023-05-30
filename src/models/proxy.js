@@ -29,7 +29,7 @@ class Proxy {
         res.on('end', () => {
           try {
             const parsedData = this.parse(rawData);
-            console.log(`Sending... ${parsedData.slice(0, 250)}... to GET request`);
+            console.log(`Sending... ${parsedData.slice(0, 150)}... to GET request`);
             this.response.send(parsedData);
 
           }
@@ -52,7 +52,7 @@ class Proxy {
           res.on('end', () => {
             try {
               const parsedData = this.parse(rawData);
-              console.log(`Sending... ${parsedData.slice(0, 250)}... to GET request`);
+              console.log(`Sending... ${parsedData.slice(0, 150)}... to GET request`);
               this.response.send(parsedData);
 
             }
@@ -72,7 +72,7 @@ class Proxy {
   parse(raw) {
     const $ = cheerio.load(raw, null, false);
 
-    console.log('href:', $('a').attr('href'));
+
     $('a').each(handleAnchor);
     $('script').each(handleScript);
     $('img').each(handleImage);
@@ -80,7 +80,7 @@ class Proxy {
 
     function handleAnchor(number, element) {
       const CurrentElement = $(element);
-      console.log(CurrentElement);
+      // console.log(CurrentElement);
       const ProxyName = "http://localhost/proxy?dhost=";
       let newHref = `${ProxyName}${CurrentElement.attr('href')}`;
       CurrentElement.attr("href", newHref);
@@ -88,7 +88,7 @@ class Proxy {
 
     function handleScript(number, element) {
       const CurrentElement = $(element);
-      console.log(CurrentElement);
+      // console.log(CurrentElement);
       const ProxyName = "http://localhost/proxy?dhost=";
       let newSrc = `${ProxyName}${CurrentElement.attr('src')}`;
       CurrentElement.attr("src", newSrc);
@@ -96,7 +96,7 @@ class Proxy {
 
     function handleImage(number, element) {
       const CurrentElement = $(element);
-      console.log(CurrentElement);
+      // console.log(CurrentElement);
       const ProxyName = "http://localhost/proxy?dhost=";
       let newSrc = `${ProxyName}${CurrentElement.attr('src')}`;
       CurrentElement.attr("src", newSrc);
@@ -104,7 +104,7 @@ class Proxy {
 
     function handleLink(number, element) {
       const CurrentElement = $(element);
-      console.log(CurrentElement);
+      // console.log(CurrentElement);
       const ProxyName = "http://localhost/proxy?dhost=";
       let newRel = `${ProxyName}${CurrentElement.attr('rel')}`;
       CurrentElement.attr("rel", newRel);
